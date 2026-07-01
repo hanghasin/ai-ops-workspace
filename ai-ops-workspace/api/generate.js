@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Company and country are required' });
   }
 
-  const prompt = `You are an expert partner operations manager. Generate a complete onboarding package for a new distributor partner. Return ONLY valid JSON with no markdown, no backticks, no preamble.
+  const prompt = `You are a senior partner operations manager evaluating a potential distributor partner. Analyse the partner details and generate a complete onboarding package with AI-assisted decision support. Return ONLY valid JSON with no markdown, no backticks, no preamble.
 
 Partner details:
 - Company: ${company}
@@ -19,7 +19,42 @@ Partner details:
 - Primary contact: ${contact || 'not specified'}
 
 Return this exact JSON structure:
+
 {
+  "decision_support": {
+    "scores": {
+      "qualification": <integer 0-100>,
+      "compliance": <integer 0-100>,
+      "operations": <integer 0-100>,
+      "overall": <integer 0-100>
+    },
+    "recommendation": "approve" | "review" | "reject",
+    "reasons": ["string", "string", "string"],
+    "confidence": <integer 0-100>,
+    "confidence_note": "string (one sentence explaining confidence level)"
+  },
+  "internal_summary": {
+    "legal": {
+      "items": [
+        {"label": "string", "value": "string", "status": "ok" | "warning" | "required"}
+      ]
+    },
+    "accounting": {
+      "items": [
+        {"label": "string", "value": "string", "status": "ok" | "warning" | "required"}
+      ]
+    },
+    "logistics": {
+      "items": [
+        {"label": "string", "value": "string", "status": "ok" | "warning" | "required"}
+      ]
+    },
+    "sales": {
+      "items": [
+        {"label": "string", "value": "string", "status": "ok" | "warning" | "required"}
+      ]
+    }
+  },
   "qualification": {
     "items": [
       {"section": "Business verification", "checks": ["string", "string", "string"]},
@@ -38,21 +73,7 @@ Return this exact JSON structure:
   },
   "email": {
     "subject": "string",
-    "body": "string (full email body, professional tone, 150-200 words)"
-  },
-  "brief": {
-    "summary": "string (2-3 sentences)",
-    "key_details": [
-      {"label": "string", "value": "string"},
-      {"label": "string", "value": "string"},
-      {"label": "string", "value": "string"},
-      {"label": "string", "value": "string"}
-    ],
-    "next_actions": [
-      {"team": "string", "action": "string"},
-      {"team": "string", "action": "string"},
-      {"team": "string", "action": "string"}
-    ]
+    "body": "string (full professional email body, 150-200 words)"
   },
   "risks": [
     {"level": "high", "flag": "string", "mitigation": "string"},
@@ -60,7 +81,17 @@ Return this exact JSON structure:
     {"level": "medium", "flag": "string", "mitigation": "string"},
     {"level": "low", "flag": "string", "mitigation": "string"}
   ]
-}`;
+}
+
+Scoring guidance:
+- qualification: based on how verifiable the business details are given the country/industry context
+- compliance: based on regulatory complexity of the country and industry
+- operations: based on how operationally ready a typical partner in this segment would be
+- overall: weighted average (qualification 30%, compliance 35%, operations 35%)
+- confidence: how confident you are in this assessment given the information provided (lower if sparse details)
+- recommendation: "approve" if overall >= 80, "review" if 60-79, "reject" if below 60
+
+Internal summary guidance: generate 3 specific, actionable items per team based on the partner context. Use "ok" for standard items, "warning" for items needing attention, "required" for blockers.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -72,19 +103,23 @@ Return this exact JSON structure:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
+        max_tokens: 3500,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       return res.status(500).json({ error: data.error?.message || 'API error' });
     }
 
     const raw = data.content[0].text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(raw);
+    parsed._meta = {
+      generated_at: new Date().toISOString(),
+      model: 'claude-sonnet-4-6',
+      status: 'awaiting_human_approval'
+    };
 
     res.status(200).json(parsed);
   } catch (err) {
