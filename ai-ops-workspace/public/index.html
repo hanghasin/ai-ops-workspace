@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Operations Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.16);
+  --text: #f0f0f0;
+  --text-secondary: #888;
+  --text-tertiary: #555;
+  --accent: #f0f0f0;
+  --danger-bg: rgba(162,45,45,0.15);
+  --danger-text: #f87171;
+  --danger-border: rgba(162,45,45,0.3);
+  --high-bg: rgba(162,45,45,0.15);
+  --high-text: #f87171;
+  --med-bg: rgba(133,79,11,0.2);
+  --med-text: #fbbf24;
+  --low-bg: rgba(59,109,17,0.2);
+  --low-text: #86efac;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.layout {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.header-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.header-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.tab {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); font-weight: 500; border-bottom-color: var(--text); }
+.tab.disabled { opacity: 0.35; cursor: default; }
+
+.badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 20px;
+  background: var(--surface2);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border);
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.section-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.section-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-full { grid-column: 1 / -1; }
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.field input::placeholder { color: var(--text-tertiary); }
+.field input:focus { border-color: var(--border-hover); }
+
+.generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.15s;
+  margin-top: 4px;
+}
+
+.generate-btn:hover { opacity: 0.85; }
+.generate-btn:disabled { opacity: 0.4; cursor: default; }
+
+.spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: 8px;
+  color: var(--danger-text);
+  font-size: 13px;
+}
+
+.output-area { margin-top: 32px; }
+
+.output-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.out-tab {
+  padding: 5px 14px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+
+.out-tab:hover { background: var(--surface); color: var(--text); }
+.out-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+.out-panel { display: none; }
+.out-panel.active { display: block; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+
+.check-section {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 12px 0 6px;
+}
+
+.check-section:first-child { padding-top: 0; }
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.checklist-item:last-child { border-bottom: none; }
+
+.check-box {
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--border-hover);
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.email-subject {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.email-body {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.kv-row:last-child { border-bottom: none; }
+.kv-label { color: var(--text-secondary); }
+.kv-value { font-weight: 500; color: var(--text); text-align: right; max-width: 60%; }
+
+.brief-summary {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.risk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.risk-item:last-child { border-bottom: none; }
+
+.risk-badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-high { background: var(--high-bg); color: var(--high-text); }
+.risk-medium { background: var(--med-bg); color: var(--med-text); }
+.risk-low { background: var(--low-bg); color: var(--low-text); }
+
+.risk-flag { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.risk-mit { font-size: 12px; color: var(--text-secondary); }
+
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  text-align: center;
+  gap: 12px;
+}
+
+.cs-icon { font-size: 36px; color: var(--text-tertiary); }
+.cs-title { font-size: 16px; font-weight: 500; color: var(--text); }
+.cs-sub { font-size: 13px; color: var(--text-secondary); max-width: 340px; line-height: 1.65; }
+.cs-pill {
+  font-size: 11px;
+  padding: 3px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 560px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-full { grid-column: 1; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <div class="header">
+    <div class="header-eyebrow">Portfolio project · 2026</div>
+    <div class="header-title">AI Operations Workspace</div>
+    <div class="header-sub">AI-native tools for partner lifecycle management</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('partner', this)">Partner</button>
+    <button class="tab disabled">Operations <span class="badge">soon</span></button>
+    <button class="tab disabled">Knowledge <span class="badge">soon</span></button>
+  </div>
+
+  <div id="panel-partner" class="panel active">
+    <div class="section-title">Partner Onboarding Assistant</div>
+    <div class="section-sub">Enter partner details to generate a full onboarding package: qualification checklist, onboarding plan, welcome email, internal brief, and risk flags.</div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Company name</label>
+        <input type="text" id="company" placeholder="e.g. Bertoni Electronics" />
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <input type="text" id="country" placeholder="e.g. Germany" />
+      </div>
+      <div class="field">
+        <label>Industry</label>
+        <input type="text" id="industry" placeholder="e.g. Consumer electronics retail" />
+      </div>
+      <div class="field">
+        <label>Product line</label>
+        <input type="text" id="product" placeholder="e.g. Ledger Nano X, Stax" />
+      </div>
+      <div class="field form-full">
+        <label>Primary contact name &amp; role</label>
+        <input type="text" id="contact" placeholder="e.g. Maria Schmidt, Head of Procurement" />
+      </div>
+    </div>
+
+    <button class="generate-btn" id="gen-btn" onclick="generate()">
+      ✦ Generate onboarding package
+    </button>
+
+    <div id="error-area"></div>
+
+    <div id="output-area" class="output-area" style="display:none;">
+      <div class="output-tabs">
+        <button class="out-tab active" onclick="switchOut('qual', this)">Qualification</button>
+        <button class="out-tab" onclick="switchOut('onboard', this)">Onboarding plan</button>
+        <button class="out-tab" onclick="switchOut('email', this)">Welcome email</button>
+        <button class="out-tab" onclick="switchOut('brief', this)">Internal brief</button>
+        <button class="out-tab" onclick="switchOut('risk', this)">Risk flags</button>
+      </div>
+
+      <div id="out-qual" class="out-panel active">
+        <div class="card">
+          <div class="card-label">Qualification checklist</div>
+          <div id="qual-content"></div>
+        </div>
+      </div>
+
+      <div id="out-onboard" class="out-panel">
+        <div class="card">
+          <div class="card-label">Onboarding plan</div>
+          <div id="onboard-content"></div>
+        </div>
+      </div>
+
+      <div id="out-email" class="out-panel">
+        <div class="card">
+          <div class="card-label">Welcome email</div>
+          <div id="email-content"></div>
+        </div>
+      </div>
+
+      <div id="out-brief" class="out-panel">
+        <div class="card">
+          <div class="card-label">Internal brief</div>
+          <div id="brief-content"></div>
+        </div>
+      </div>
+
+      <div id="out-risk" class="out-panel">
+        <div class="card">
+          <div class="card-label">Risk flags</div>
+          <div id="risk-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-operations" class="panel">
+    <div class="coming-soon">
+      <div class="cs-icon">◫</div>
+      <div class="cs-title">Operations Dashboard</div>
+      <div class="cs-sub">Monitor partner health, order status, and operational metrics. AI-generated daily briefings and risk summaries from CSV or CRM data.</div>
+      <span class="cs-pill">In development</span>
+    </div>
+  </div>
+
+  <div id="panel-knowledge" class="panel">
+    <div class="coming-soon">
+      <div class="cs-icon">◻</div>
+      <div class="cs-title">Knowledge Generator</div>
+      <div class="cs-sub">Auto-generate SOPs, user guides, FAQs, and training materials from project inputs. Built for teams that still write documentation manually.</div>
+      <span class="cs-pill">In development</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function switchOut(name, el) {
+  document.querySelectorAll('.out-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.out-panel').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('out-' + name).classList.add('active');
+}
+
+async function generate() {
+  const company = document.getElementById('company').value.trim();
+  const country = document.getElementById('country').value.trim();
+  const industry = document.getElementById('industry').value.trim();
+  const product = document.getElementById('product').value.trim();
+  const contact = document.getElementById('contact').value.trim();
+
+  if (!company || !country) {
+    document.getElementById('error-area').innerHTML = '<div class="error">Please enter at least a company name and country.</div>';
+    return;
+  }
+
+  document.getElementById('error-area').innerHTML = '';
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  document.getElementById('output-area').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company, country, industry, product, contact })
+    });
+
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Something went wrong');
+
+    renderQual(d.qualification);
+    renderOnboard(d.onboarding);
+    renderEmail(d.email);
+    renderBrief(d.brief);
+    renderRisks(d.risks);
+
+    document.getElementById('output-area').style.display = 'block';
+    document.querySelectorAll('.out-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+    document.querySelectorAll('.out-panel').forEach((p,i) => p.classList.toggle('active', i===0));
+
+  } catch(e) {
+    document.getElementById('error-area').innerHTML = '<div class="error">' + e.message + '</div>';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✦ Regenerate';
+}
+
+function renderQual(q) {
+  let h = '';
+  q.items.forEach(s => {
+    h += '<div class="check-section">' + s.section + '</div>';
+    s.checks.forEach(c => {
+      h += '<div class="checklist-item"><div class="check-box"></div><span>' + c + '</span></div>';
+    });
+  });
+  document.getElementById('qual-content').innerHTML = h;
+}
+
+function renderOnboard(o) {
+  let h = '';
+  o.phases.forEach(ph => {
+    h += '<div class="check-section">' + ph.phase + '</div>';
+    ph.tasks.forEach(t => {
+      h += '<div class="checklist-item"><div class="check-box"></div><span>' + t + '</span></div>';
+    });
+  });
+  document.getElementById('onboard-content').innerHTML = h;
+}
+
+function renderEmail(e) {
+  document.getElementById('email-content').innerHTML =
+    '<div class="email-subject"><strong>Subject:</strong> ' + e.subject + '</div>' +
+    '<div class="email-body">' + e.body + '</div>';
+}
+
+function renderBrief(b) {
+  let h = '<div class="brief-summary">' + b.summary + '</div>';
+  h += '<div class="check-section">Key details</div>';
+  b.key_details.forEach(kd => {
+    h += '<div class="kv-row"><span class="kv-label">' + kd.label + '</span><span class="kv-value">' + kd.value + '</span></div>';
+  });
+  h += '<div class="check-section" style="margin-top:12px">Actions by team</div>';
+  b.next_actions.forEach(a => {
+    h += '<div class="checklist-item"><div class="check-box"></div><span><strong>' + a.team + ':</strong> ' + a.action + '</span></div>';
+  });
+  document.getElementById('brief-content').innerHTML = h;
+}
+
+function renderRisks(risks) {
+  let h = '';
+  risks.forEach(r => {
+    const cls = 'risk-' + r.level;
+    h += '<div class="risk-item"><span class="risk-badge ' + cls + '">' + r.level + '</span><div><div class="risk-flag">' + r.flag + '</div><div class="risk-mit">' + r.mitigation + '</div></div></div>';
+  });
+  document.getElementById('risk-content').innerHTML = h;
+}
+</script>
+</body>
+</html>
