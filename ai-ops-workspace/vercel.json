@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "api/generate.js": { "memory": 256 },
+    "api/package.js": { "memory": 256 }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/public/index.html" }
   ]
