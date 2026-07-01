@@ -212,6 +212,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
   font-family: 'Inter', sans-serif;
   transition: all 0.15s;
   margin-top: 8px;
+  margin-bottom: 16px;
 }
 .pkg-download-btn:hover { background: rgba(59,109,17,0.3); }
 </style>
@@ -362,7 +363,7 @@ function buildResultHTML(d,company,key){
         </div>
       </div>
       <div class="score-bars">${bars}</div>
-      ${flags?`<div class="flags-section"><div class="flags-label">Flags</div>${flags}</div>`:''}
+      ${flags?`<div class="flags-section"><div class="flags-label">Key Findings</div>${flags}</div>`:''}
     </div>
     <div class="rec-bar">
       <div class="rec-bar-left">
@@ -373,7 +374,7 @@ function buildResultHTML(d,company,key){
       <div class="time-saved">
         <div class="ts-label">Estimated time saved</div>
         <div class="ts-value">${timeSaved}</div>
-        <div class="ts-sub">Per partner onboarding</div>
+        <div class="ts-sub">per onboarding</div>
       </div>
     </div>
     <div class="out-tabs" id="tabs-${key}">
