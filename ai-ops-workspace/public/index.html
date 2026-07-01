@@ -445,7 +445,7 @@ async function generatePackage(key){
   if(note){note.textContent='✦ Approved — Generating partner package...';}
 
   try{
-    const res=await fetch('/api/package',{
+    const res=await fetch('/api/generate?type=package',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({company,country,data:d})
