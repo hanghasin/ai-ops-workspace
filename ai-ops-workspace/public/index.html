@@ -155,10 +155,10 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .team-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
 .team-card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px; }
-.team-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.team-item { display: flex; flex-direction: column; gap: 3px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .team-item:last-child { border-bottom: none; }
-.team-item-label { color: var(--text-secondary); flex-shrink: 0; }
-.team-item-value { font-weight: 500; text-align: right; }
+.team-item-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; }
+.team-item-value { font-size: 12px; line-height: 1.5; }
 .ti-ok { color: var(--green); }
 .ti-warning { color: var(--yellow); }
 .ti-required { color: var(--red); }
@@ -354,7 +354,7 @@ function buildResultHTML(d, company, statusKey) {
     <div class="audit-trail">
       <div class="audit-item"><div class="audit-dot"></div>Generated ${genTime}</div>
       <div class="audit-item"><div class="audit-dot"></div>claude-sonnet-4-6</div>
-      <div class="audit-item"><div class="audit-dot"></div><span class="audit-status" id="audit-status-${statusKey}">Awaiting Human Approval</span></div>
+      <div class="audit-item"><div class="audit-dot"></div><span class="audit-status" id="audit-status-${statusKey}">Pending Review</span></div>
     </div>
 
     <div class="readiness-panel">
@@ -460,9 +460,9 @@ function makeDecision(key, decision, btn) {
     rejected: ['dn-rejected','✕ Rejected — Document rejection reason in the internal brief.']
   };
   const auditMap = {
-    approved: 'Approved by Human Reviewer',
-    review: 'Flagged for Human Review',
-    rejected: 'Rejected by Human Reviewer'
+    approved: 'Approved',
+    review: 'Under Review',
+    rejected: 'Rejected'
   };
   const tabMap = { approved: 'email', review: 'risk', rejected: 'summary' };
 
