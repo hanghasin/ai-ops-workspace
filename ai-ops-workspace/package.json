@@ -1,6 +1,7 @@
 {
   "name": "ai-operations-workspace",
   "version": "1.0.0",
-  "description": "AI-native operations product for partner lifecycle management",
+  "type": "module",
+  "description": "AI-native operations workspace for partner lifecycle management",
   "private": true
 }
